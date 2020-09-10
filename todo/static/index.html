@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TODO App</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <ul>
+        <li v-for="item in todo_items">
+            <input type="checkbox" v-bind:checked="item.is_done"
+                   @click="mark_done" />
+            {{ item.name }}
+        </li>
+    </ul>
+    <form @submit="add_todo_item">
+        <input placeholder="Новое дело" type="text"
+               v-model="todo_item_name" />
+        <button @click="add_todo_item">+</button>
+    </form>
+
+</div>
+
+<script>
+    var vm = new Vue({
+        el: "#app",
+        methods: {
+            mark_done: function (event) {
+            },
+            add_todo_item: function (event) {
+                var self = this;
+                self.todo_items.push({});
+                fetch("/todoitems/", {
+                    "method": "POST",
+                    "body": JSON.stringify({
+                        "is_done": false,
+                        "name": this.todo_item_name
+                    }),
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }).then(function (resp) {
+                    if (resp.ok) {
+                        resp.json().then(function (data) {
+                            self.todo_items.push(data);
+                        });
+                    }
+                });
+                event.preventDefault();
+            }
+        },
+        created: function () {
+            var self = this;
+            fetch("/todoitems/").then(function (resp) {
+                return resp.json();
+            }).then(function (data) {
+                self.todo_items = data.results;
+            });
+        },
+        data: {
+            todo_item_name: "",
+            todo_items: [
+                {
+                    name: 'Заработать денег',
+                    is_done: false
+                }
+            ]
+        }
+    });
+</script>
+</body>
+</html>
