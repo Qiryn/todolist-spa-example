@@ -4,6 +4,13 @@
 
 </head>
 <body>
-    {{ results }}
+    <ul>
+    {% for item in results %}
+        <li><input type="checkbox"
+                   {% if item.is_done %}checked{% end %} />
+            {{ item.name }}
+        </li>
+    {% end %}
+    </ul>
 </body>
 </html>
